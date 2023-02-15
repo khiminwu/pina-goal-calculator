@@ -1,0 +1,9 @@
+{
+  "version": "v1",
+  "packages": {
+    "@pinaid/pina-goal-calculator": {
+      "signature": "b97cae6852c9dd56d6a1241c96698a8f",
+      "file": true
+    }
+  }
+}

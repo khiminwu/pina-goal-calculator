@@ -714,6 +714,6 @@ export const generateResultCreatePortfolio = ({
 
 
 
-export const calculateGeneralPortofolio = ({returnValue,inflation=5,target})=>{
+export const calculateGeneralPortofolio = ({returnValue:number,inflation:number=5,target:number})=>{
       console.log(returnValue,target)
 }

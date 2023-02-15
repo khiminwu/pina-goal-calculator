@@ -1,14 +1,19 @@
 const { generateResultCreatePortfolio,calculateGeneralPortofolio } = require('./calculation.js')
 const { html } = require('./Charts/Charts.js')
 
-const axios = require('axios');
 
 /**
- * Get All Goal List
- * @returns {object}
- */
+ * @param {Number} returnValue
+ * @param {Boolean} isRetirement
+ * @param {Number} initialSavingAmount
+ * @param {Number} age
+*/
+
+
+
+
 export const getGoals = ()=>{
-  return 'goalsss223'
+  return 'goalsssddddd'
 }
 
 /**
@@ -41,8 +46,8 @@ export const calculateGoal = (data)=>{
   // goalCreatedAt = null,
   // goalInvestmentValue = 0,
   
-  calculateGeneralPortofolio(data)
-  return generateResultCreatePortfolio(data);
+  
+  return calculateGeneralPortofolio(data);
 }
 
 export const calculateRetirement = (data)=>{
@@ -81,3 +86,4 @@ export const generateChart=({series,chartOptions,type='1D',categories,title})=>{
 export const generateWebChart=({series,chartOptions,type='bar'})=>{
   return html(series,chartOptions?chartOptions:false,type)
 }
+
