@@ -1,7 +1,8 @@
-import {cloneDeep, isEmpty, parseInt} from 'lodash';
+import pkg from 'lodash';
+const { cloneDeep, isEmpty, parseInt } = pkg;
 import moment from 'moment';
-import constans from './constans';
-import {addMonths, formatRupiah} from './helper';
+import constans from './constans.js';
+import { addMonths, formatRupiah, formatSeparator } from './helper.js';
 
 export function generateChartData(
   array = [],
@@ -29,11 +30,10 @@ export function generateChartData(
       y: value,
       label: isRetirement ? age + index : index,
       value,
-      tooltext: `${
-        date
-          ? `<center>${addMonths(date, isRetirement ? (index * 12) : index).format('D MMM YYYY')}</center>`
-          : ''
-      }${title}: ${formatRupiah(value, value > 1000000 ? 2 : 0)}`,
+      tooltext: `${date
+        ? `<center>${addMonths(date, isRetirement ? (index * 12) : index).format('D MMM YYYY')}</center>`
+        : ''
+        }${title}: ${formatRupiah(value, value > 1000000 ? 2 : 0)}`,
       date: date ? addMonths(date, isRetirement ? (index * 12) : index).format('YYYY-MM-DD') : null,
     };
   });
@@ -58,13 +58,13 @@ export function monthlyPMT(ir, np, pv, fv = 0, type = 0) {
   // fv = typeof fv !== 'undefined' ? fv : 0;
   // type = typeof type !== 'undefined' ? type : 0;
 
-  console.log({
-    ir,
-    np,
-    pv,
-    fv,
-    type,
-  });
+  // console.log({
+  //   ir,
+  //   np,
+  //   pv,
+  //   fv,
+  //   type,
+  // });
 
   let result = 0;
 
@@ -362,13 +362,11 @@ export function calculateRetirementPMT(
     monthlySpendingFuture: target_retirement_expense,
   };
 
-  console.log('result: ', result);
-  console.log('actual_without_interest: ', actual_without_interest);
+  // console.log('result: ', result);
+  // console.log('actual_without_interest: ', actual_without_interest);
 
   return result;
 }
-
-
 
 export function nper(rate, per, pmt, pv, fv) {
   // console.log(rate,per,pmt,pv,fv)
@@ -379,7 +377,7 @@ export function nper(rate, per, pmt, pv, fv) {
 
   let nper_value = 0;
   if (per == 0 || pmt == 0) {
-    alert('Why do you want to test me with zeros?');
+    console.log('Why do you want to test me with zeros?');
     return 0;
   }
 
@@ -470,7 +468,7 @@ export function NPER(rate, payment, present, future, type) {
   // Return number of periods
   const num = payment * (1 + rate * type) - future * rate;
   const den = (present * rate + payment * (1 + rate * type));
-  return Math.log(num / den) / Math.log(1 + rate);
+  // return Math.log(num / den) / Math.log(1 + rate);
 }
 
 export const generateResultCreatePortfolio = ({
@@ -513,8 +511,9 @@ export const generateResultCreatePortfolio = ({
   let isOnTrack = true;
   let marginLeftToday = 0;
   let tempMonthlySpendingFuture = 0;
-
+  
   if (isRetirement) {
+    
     const retirementPlan = calculateRetirementPMT(
       initialSavingAmount + parseInt(goalInvestmentValue) + fundingValue,
       age,
@@ -522,7 +521,7 @@ export const generateResultCreatePortfolio = ({
       income,
       interestRate,
       monthlySpending,
-      (monthlySaving / income) * 100,
+      (monthlySaving / income) * 100 || 0,
       LIFE_RATIO,
       constans.RETIREMENT_RETURN_RATE,
       constans.INFLATION_RATE,
@@ -530,6 +529,8 @@ export const generateResultCreatePortfolio = ({
       isFromCreatePortfolio,
       monthlySpendingFuture,
     );
+
+    // console.log(retirementPlan.shortfall)
 
     tempMonthlySpendingFuture = retirementPlan?.monthlySpendingFuture || 0;
 
@@ -682,9 +683,7 @@ export const generateResultCreatePortfolio = ({
 
       const historyLength = monthlySavings.length - 1;
 
-      if (historyLength > 0) {
-        marginLeftToday = (historyLength / generalPlan.length) * (Metrics.screenWidth - s(40));
-      }
+      
 
       const investedValue = isEmpty(monthlySavings)
         ? initialSavingAmount
@@ -758,4 +757,3 @@ export const generateResultCreatePortfolio = ({
     monthlySpendingFuture: tempMonthlySpendingFuture,
   };
 };
-

@@ -1,6 +1,6 @@
 {
   "name": "@pinaid/pina-goal-calculator",
-  "version": "0.0.1",
+  "version": "0.0.3",
   "description": "Pina Goal calculation formula ",
   "main": "./src/index.js",
   "scripts": {
@@ -12,6 +12,7 @@
   },
   "author": "khimin",
   "license": "ISC",
+  "type": "module",
   "bugs": {
     "url": "https://github.com/khiminwu/pina-goal-calculator/issues"
   },

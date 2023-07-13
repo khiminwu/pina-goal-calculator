@@ -1,5 +1,5 @@
-const { generateResultCreatePortfolio } = require('./calculation.js')
-const { html } = require('./Charts/Charts.js')
+import { generateResultCreatePortfolio } from './calculation.js'
+import { html } from './Charts/Charts.js';
 
 
 /**
@@ -52,6 +52,7 @@ export const calculateRetirement = (data)=>{
   // isFromCreatePortfolio = true,
   // goalCreatedAt = null,
   // goalInvestmentValue = 0,
+  // console.log(data)
   data.isRetirement=true;
   return generateResultCreatePortfolio(data);
 }
