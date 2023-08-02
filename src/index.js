@@ -1,4 +1,4 @@
-import { generateResultCreatePortfolio } from './calculation.js'
+import { generateResultCreatePortfolio, fv,pv,nper,calculatePMT } from './calculation.js'
 import { html } from './Charts/Charts.js';
 
 
@@ -63,4 +63,20 @@ export const calculateEducation = (data)=>{
 
 export const generateChart=({series,chartOptions,type='bar'})=>{
   return html(series,chartOptions?chartOptions:false,type)
+}
+
+export const calculateFV = ({ rate, nper, pmt, pv, type }) => {
+  return fv(rate, nper, pmt, pv, type)
+}
+
+export const calculatePV = ({ rate, nper, pmt, fv, type }) => {
+  return pv(rate, nper, pmt, fv, type)
+}
+
+export const calculateNPER = ({ rate, per, pmt, pv, fv }) => {
+  return nper(rate, per, pmt, pv, fv)
+}
+
+export const PMT = ({ initial, monthly,annual_rate,total_month,addInitial = false }) => {
+  return calculatePMT(initial, monthly, annual_rate, total_month, addInitial)
 }

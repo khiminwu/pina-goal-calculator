@@ -84,6 +84,12 @@ export function monthlyPMT(ir, np, pv, fv = 0, type = 0) {
   return parseInt(result);
 }
 
+// The PMT function is a financial function that returns the periodic payment for a loan
+// rate - The interest rate for the loan.
+// nper - The total number of payments for the loan.
+// pv - The present value, or total value of all loan payments now.
+// fv - [optional] The future value, or a cash balance you want after the last payment is made. Defaults to 0 (zero).
+// type - [optional] When payments are due. 0 = end of period. 1 = beginning of period. Default is 0.
 export function calculatePMT(
   initial,
   monthly,
@@ -184,6 +190,8 @@ export function calculateRetirementPMT(
   //   inflation_rate,
   //   saving_plan_perc,
   // });
+
+  // console.log(inflation_rate,'inflation_rate')
 
   const total_year_retirement = life_ratio - age - year_periode;
   const yearly_income = monthly_income * 12;
@@ -368,6 +376,12 @@ export function calculateRetirementPMT(
   return result;
 }
 
+// The NPER function is a financial function that returns the number of periods for loan or investment
+// rate - The interest rate per period.
+// payment - The payment made each period.
+// present - The present value, or total value of all payments now.
+// future - [optional] The future value, or a cash balance you want after the last payment is made. Defaults to 0.
+// type - [optional] When payments are due. 0 = end of period. 1 = beginning of period. Default is 0.
 export function nper(rate, per, pmt, pv, fv) {
   // console.log(rate,per,pmt,pv,fv)
   fv = parseFloat(fv);
@@ -419,6 +433,12 @@ export function pv(rate, nper, pmt, fv, type) {
   return pv_value;
 }
 
+// The FV function is a financial function that returns the future value of an investment
+// rate - The interest rate per period.
+// nper - The total number of payment periods.
+// pmt - The payment made each period. Must be entered as a negative number.
+// pv - [optional] The present value of future payments. If omitted, assumed to be zero. Must be entered as a negative number.
+// type - [optional] When payments are due. 0 = end of period, 1 = beginning of period. Default is 0.
 export function fv(rate, nper, pmt, pv, type) {
   rate = parseFloat(rate);
   nper = parseFloat(nper);
@@ -492,6 +512,7 @@ export const generateResultCreatePortfolio = ({
   goalInvestmentValue = 0,
   fundingValue = 0,
   monthlySpendingFuture = 0,
+  inflationRate = false
 }) => {
   const interestRate = parseFloat(returnValue || 5);
 
@@ -512,6 +533,7 @@ export const generateResultCreatePortfolio = ({
   let marginLeftToday = 0;
   let tempMonthlySpendingFuture = 0;
   
+  
   if (isRetirement) {
     
     const retirementPlan = calculateRetirementPMT(
@@ -524,7 +546,7 @@ export const generateResultCreatePortfolio = ({
       (monthlySaving / income) * 100 || 0,
       LIFE_RATIO,
       constans.RETIREMENT_RETURN_RATE,
-      constans.INFLATION_RATE,
+      inflationRate ? inflationRate : constans.INFLATION_RATE,
       constans.BPJS_RATE,
       isFromCreatePortfolio,
       monthlySpendingFuture,
