@@ -1,4 +1,4 @@
-import { generateResultCreatePortfolio, fv,pv,nper,calculatePMT } from './calculation.js'
+import { generateResultCreatePortfolio, fv,pv,nper,calculatePMT,monthlyPMT } from './calculation.js'
 import { html } from './Charts/Charts.js';
 
 
@@ -80,3 +80,8 @@ export const calculateNPER = ({ rate, per, pmt, pv, fv }) => {
 export const PMT = ({ initial, monthly,annual_rate,total_month,addInitial = false }) => {
   return calculatePMT(initial, monthly, annual_rate, total_month, addInitial)
 }
+
+export const PMTMonthly = ({ ir, np, pv, fv = 0, type = 0 }) => {
+  return monthlyPMT(ir, np, pv, fv = 0, type = 0)
+}
+

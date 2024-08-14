@@ -1,8 +1,8 @@
 import pkg from 'lodash';
-const { cloneDeep, isEmpty, parseInt } = pkg;
 import moment from 'moment';
 import constans from './constans.js';
-import { addMonths, formatRupiah, formatSeparator } from './helper.js';
+import { addMonths, formatRupiah } from './helper.js';
+const { cloneDeep, isEmpty, parseInt } = pkg;
 
 export function generateChartData(
   array = [],
@@ -42,6 +42,7 @@ export function generateChartData(
     setMaxY(tempMaxY);
   }
 
+  console.log(`result-${title}`, result);
   return result;
 }
 
@@ -194,6 +195,7 @@ export function calculateRetirementPMT(
   // console.log(inflation_rate,'inflation_rate')
 
   const total_year_retirement = life_ratio - age - year_periode;
+  console.log('monthly_income', monthly_income)
   const yearly_income = monthly_income * 12;
   const monthly_rate = (1 + parseFloat(return_rate) / 100) ** (1 / 12) - 1;
   const actual_arr = [];
@@ -225,12 +227,15 @@ export function calculateRetirementPMT(
     1,
   );
   target_total_value = Math.abs(target_total_value);
+  // console.log('target_total_value', target_total_value)
 
   const yearly_bpjs = (bpjs_rate / 100) * yearly_income;
   total_bpjs = Math.abs(
     fv(parseFloat(return_rate) / 100, year_periode, 0, yearly_bpjs, 0),
   ); // temp not used
   const yearly_contribution = yearly_income * (saving_plan_perc / 100);
+  // console.log('saving_plan_perc', saving_plan_perc)
+  // console.log('yearly_contribution', yearly_contribution)
   // yearly_bpjs????
   let initial_fv = fv(
     parseFloat(return_rate) / 100,
@@ -240,10 +245,10 @@ export function calculateRetirementPMT(
     0,
   );
   initial_fv = Math.abs(initial_fv);
-  // console.log('initial_fv',parseFloat(return_rate) / 100,year_periode,initial,initial_fv)
-  const calc = (Math.pow(1 + inflation_rate / 100, year_periode)
-    - Math.pow(1 + return_rate / 100, year_periode))
-    / (inflation_rate / 100 - return_rate / 100);
+  console.log('initial_fv', parseFloat(return_rate) / 100,year_periode,initial,initial_fv)
+  // const calc = (Math.pow(1 + inflation_rate / 100, year_periode) - Math.pow(1 + return_rate / 100, year_periode)) / ((inflation_rate / 100) - (return_rate / 100));
+  const calc = (1 - Math.pow(1 + return_rate /100, year_periode)) / (0 - (return_rate / 100 ))
+  // TODO: CHANGE THIS CODE
 
   const value_current_contribution = yearly_contribution * calc;
 
@@ -259,10 +264,19 @@ export function calculateRetirementPMT(
 
   const suggested_saving = shortfall / calc;
   const suggested_saving_perc = ((suggested_saving + yearly_contribution) / yearly_income) * 100;
+  
+  // console.log('calc', calc)
+  // console.log('shortfall', shortfall)
+  // console.log('suggested_saving', suggested_saving)
+  // console.log('suggested_saving_perc', suggested_saving_perc)
 
   let income = yearly_income;
 
   let expense = parseFloat(target_retirement_expense);
+
+  // console.log('target_retirement_expense', target_retirement_expense)
+  // console.log('expense', expense)
+  // console.log('monthlySpendingFuture', monthlySpendingFuture)
 
   // console.log(parseFloat(suggested_nper),suggested_saving,suggested_saving_perc)
   for (let i = 0; i <= year_periode + total_year_retirement; i++) {
@@ -271,30 +285,36 @@ export function calculateRetirementPMT(
     let target_contribution = 0;
     let target_investment_net = 0;
 
-    let investment_actual = 0;
+    let investment_without_interest = 0;
 
     if (i <= year_periode) {
       if (initial && initial > 0) {
-        target_investment_net = investment_net = investment_actual = initial;
+        target_investment_net = investment_net = investment_without_interest = initial;
       }
       if (i > 0) {
-        if (i > 1) income += income * (inflation_rate / 100);
+        // TODO: CHANGE THIS CODE
+        // if (i > 1) income += income;
+        // KALO INCOME GAK KENA INFLATION RATE
 
-        const bpjs = income * 0.057;
+        // if (i > 0) income += income * (inflation_rate / 100);
+        // KALO INCOME KENA INFLATION RATE
+
+        // const bpjs = income * 0.057;
         // console.log(bpjs)
         // actual
         annual_contribution = income * ((isFromCreatePortfolio ? suggested_saving_perc : saving_plan_perc) / 100);
+
+       
+
         let interest = fv(
           parseFloat(return_rate) / 100,
           1,
           annual_contribution,
           actual_arr[i - 1].investment_net,
         );
-        interest = Math.abs(interest)
-          - (actual_arr[i - 1].investment_net + annual_contribution);
-
+        interest = Math.abs(interest) - (actual_arr[i - 1].investment_net + annual_contribution);
         investment_net = actual_arr[i - 1].investment_net + annual_contribution + interest;
-        investment_actual = actual_without_interest[i - 1].investment_net + annual_contribution;
+        investment_without_interest = actual_without_interest[i - 1].investment_net + annual_contribution;
 
         // target
         target_contribution = income * (suggested_saving_perc / 100);
@@ -325,13 +345,18 @@ export function calculateRetirementPMT(
       const key = i - year_periode;
       if (key > 0) expense += expense * (inflation_rate / 100);
 
-      let interest = fv(0.05, 1, 0, actual_arr[i - 1].investment_net);
+      // TODO: CHANGE THIS CODE
+      let interest = fv(constans.RETIREMENT_RETURN_RATE, 1, 0, actual_arr[i - 1].investment_net);
+      // let interest = fv(0.005, 1, 0, actual_arr[i - 1].investment_net);
+
       interest = Math.abs(interest) - actual_arr[i - 1].investment_net;
+
       investment_net = actual_arr[i - 1].investment_net + interest - expense;
+      investment_without_interest = actual_without_interest[i - 1].investment_net - expense;
 
-      investment_actual = actual_without_interest[i - 1].investment_net - expense;
-
-      let target_interest = fv(0.05, 1, 0, target_arr[i - 1].investment_net);
+      // TODO: CHANGE THIS CODE
+      let target_interest = fv(constans.RETIREMENT_RETURN_RATE, 1, 0, target_arr[i - 1].investment_net);
+      // let target_interest = fv(0.005, 1, 0, target_arr[i - 1].investment_net);
       target_interest = Math.abs(target_interest) - target_arr[i - 1].investment_net;
       target_investment_net = target_arr[i - 1].investment_net + target_interest - expense;
       // console.log(expense)
@@ -343,7 +368,7 @@ export function calculateRetirementPMT(
     });
     // }
     actual_without_interest.push({
-      investment_net: investment_actual,
+      investment_net: investment_without_interest,
     });
 
     // if (!isNaN(target_investment_net)) {
@@ -514,10 +539,12 @@ export const generateResultCreatePortfolio = ({
   monthlySpendingFuture = 0,
   inflationRate = false
 }) => {
-  const interestRate = parseFloat(returnValue || 5);
+  const interestRate = parseFloat(returnValue);
+  console.log('interestRate', interestRate);
 
   let actualInvestValue = [];
   let datasetActual = [];
+  let datasetActualWithoutInterest = [];
   let temporaryGoalAmount = cloneDeep(goalAmount);
   let totalInvestRetirement = 0;
   let totalInvest = 0;
@@ -535,6 +562,9 @@ export const generateResultCreatePortfolio = ({
   
   
   if (isRetirement) {
+
+    console.log('monthlySaving', monthlySaving)
+    console.log('income', income)
     
     const retirementPlan = calculateRetirementPMT(
       initialSavingAmount + parseInt(goalInvestmentValue) + fundingValue,
@@ -578,12 +608,23 @@ export const generateResultCreatePortfolio = ({
       : parseInt(income * ((retirementPlan?.suggested?.saving_perc || 0) / 100));
     suggestedSavingPerc = retirementPlan?.suggested?.saving_perc || 0;
 
+    console.log('retirementPlan', retirementPlan)
+
     datasetTarget = generateChartData(retirementPlan.target, null, true, age, 'Target', goalCreatedAt);
     datasetProjection = generateChartData(retirementPlan.actual, null, true, age, 'Proyeksi');
 
     if (isFromCreatePortfolio) {
       datasetActual = generateChartData(
         retirementPlan.actual,
+        null,
+        true,
+        age,
+        'Dana Pensiun',
+        new Date(),
+      );
+
+      datasetActualWithoutInterest = generateChartData(
+        retirementPlan.actual_without_interest,
         null,
         true,
         age,
@@ -603,7 +644,15 @@ export const generateResultCreatePortfolio = ({
       }
 
       datasetActual = generateChartData(
-        [...monthlySavings, ...retirementPlan.actual.slice(monthlySavings.length)],
+        [...monthlySavings, ...retirementPlan.actual_without_interest.slice(monthlySavings.length)],
+        null,
+        true,
+        age,
+        'Proyeksi',
+      );
+
+      datasetActualWithoutInterest = generateChartData(
+        [...monthlySavings, ...retirementPlan.actual_without_interest.slice(monthlySavings.length)],
         null,
         true,
         age,
@@ -634,8 +683,20 @@ export const generateResultCreatePortfolio = ({
       savingDurationInMonth,
     );
 
+    console.log('initialSavingAmount', initialSavingAmount)
+    console.log('monthlyGeneralPlan', monthlyGeneralPlan)
+    console.log('generalPlan', generalPlan)
+    console.log('savingDurationInMonth', savingDurationInMonth)
+
     if (isFromCreatePortfolio) {
       const defaultPlan = calculatePMT(
+        initialSavingAmount,
+        monthly,
+        0,
+        savingDurationInMonth,
+      );
+
+      const defaultPlanWithoutInterest = calculatePMT(
         initialSavingAmount,
         monthly,
         0,
@@ -646,6 +707,17 @@ export const generateResultCreatePortfolio = ({
         [
           { initial: 0, saving: 0 },
           ...defaultPlan,
+        ],
+        null,
+        false,
+        0,
+        'Investment',
+      );
+
+      datasetActualWithoutInterest = generateChartData(
+        [
+          { initial: 0, saving: 0 },
+          ...defaultPlanWithoutInterest,
         ],
         null,
         false,
@@ -735,6 +807,13 @@ export const generateResultCreatePortfolio = ({
         savingDurationInMonth,
       );
 
+      const defaultPlanWithoutInterest = calculatePMT(
+        0,
+        monthly,
+        0,
+        savingDurationInMonth,
+      );
+
       const datasetCurrentChart = generateChartData(
         [...monthlySavings, ...generalCurrentPlan],
         null,
@@ -754,15 +833,30 @@ export const generateResultCreatePortfolio = ({
         'Investment',
       );
 
+      datasetActualWithoutInterest = generateChartData(
+        [
+          { initial: 0, saving: 0 },
+          ...defaultPlanWithoutInterest,
+        ],
+        null,
+        false,
+        0,
+        'Investment',
+      );
+
       isOnTrack = (((datasetCurrentChart?.[datasetCurrentChart.length - 1]?.y - goalAmount) / goalAmount) * 100) > constans.OFFSET_TOLERANCE_GOAL;
       additionalTopup = monthly > 0 ? monthly : 0;
       datasetProjection = datasetCurrentChart;
     }
   }
 
+  
+  
+
   return {
     actualInvestValue,
     datasetActual,
+    datasetActualWithoutInterest,
     temporaryGoalAmount,
     totalInvestRetirement,
     totalInvest,
